@@ -1,1 +1,380 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoV Random Challenge V2 - สุ่มท้าตายแบบมีรูป</title>
+    <style>
+        :root {
+            --bg-color: #030712;
+            --card-bg: #111827;
+            --primary: #38bdf8;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --text: #f3f4f6;
+            --rune-red: #ef4444;
+            --rune-purple: #a855f7;
+            --rune-green: #22c55e;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg-color), #1e1b4b);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary);
+            text-shadow: 0 0 15px rgba(56, 189, 248, 0.7);
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #9ca3af;
+            margin-bottom: 25px;
+        }
+
+        .btn-random {
+            background: linear-gradient(90deg, var(--accent), var(--danger));
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.5);
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
+
+        .btn-random:hover {
+            transform: scale(1.05) translateY(-3px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.7);
+        }
+
+        .result-box {
+            display: none;
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            text-align: left;
+        }
+
+        /* Hero and Position Layout */
+        .top-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .hero-card, .pos-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            flex: 1;
+            min-width: 250px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid #374151;
+        }
+
+        .hero-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid var(--accent);
+            object-fit: cover;
+        }
+
+        .pos-img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        .card-title {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            margin: 0 0 5px 0;
+        }
+
+        .card-value {
+            color: var(--text);
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        /* Runes and Enchantment */
+        .middle-meta {
+            margin-bottom: 25px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #374151;
+        }
+
+        .section-header {
+            color: var(--primary);
+            margin-top: 0;
+            border-bottom: 1px solid #374151;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .rune-container {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .rune-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+
+        .rune-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+
+        .ench-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.2rem;
+        }
+
+        .ench-img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        /* Items Grid */
+        .items-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #374151;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .item-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #1f2937;
+        }
+
+        .item-img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            margin-bottom: 8px;
+        }
+
+        .item-name {
+            font-size: 0.85rem;
+            color: #d1d5db;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .hero-card, .pos-card { flex: 1 1 100%; }
+            .rune-container { justify-content: flex-start; }
+            .btn-random { width: 100%; padding: 15px; font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <h1>⚔️ RoV Random Challenge ⚔️</h1>
+    <p class="subtitle">ระบบสุ่มเซ็ตท้าตายแบบเห็นภาพ จัดทีมขำๆ กับเพื่อน!</p>
+    
+    <button class="btn-random" onclick="randomAll()">✨ สุ่มเลย !</button>
+
+    <div class="result-box" id="resultBox">
+        
+        <!-- ส่วนบน: ฮีโร่ และ ตำแหน่ง -->
+        <div class="top-meta">
+            <div class="hero-card">
+                <img id="heroImg" class="hero-img" src="" alt="Hero">
+                <div>
+                    <p class="card-title">ฮีโร่ท้าตาย</p>
+                    <p id="heroName" class="card-value">?</p>
+                </div>
+            </div>
+            <div class="pos-card">
+                <img id="posImg" class="pos-img" src="" alt="Position">
+                <div>
+                    <p class="card-title">ตำแหน่ง/เลน</p>
+                    <p id="posName" class="card-value">?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ส่วนกลาง: รูน และ พลังแฝง -->
+        <div class="middle-meta">
+            <h3 class="section-header">การตั้งค่าพลัง</h3>
+            
+            <p class="card-title" style="margin-bottom: 10px;">เซ็ตรูน Level 3 (แนะนำ)</p>
+            <div class="rune-container">
+                <div class="rune-item">
+                    <div class="rune-dot" style="background-color: var(--rune-red);"></div>
+                    <span id="runeRedName">?</span>
+                </div>
+                <div class="rune-item">
+                    <div class="rune-dot" style="background-color: var(--rune-purple);"></div>
+                    <span id="runePurpleName">?</span>
+                </div>
+                <div class="rune-item">
+                    <div class="rune-dot" style="background-color: var(--rune-green);"></div>
+                    <span id="runeGreenName">?</span>
+                </div>
+            </div>
+
+            <p class="card-title" style="margin-bottom: 10px;">พลังแฝงหลัก</p>
+            <div class="ench-container">
+                <img id="enchImg" class="ench-img" src="" alt="Enchantment">
+                <span id="enchName" class="card-value" style="font-size: 1.1rem;">?</span>
+            </div>
+        </div>
+
+        <!-- ส่วนล่าง: ไอเทม -->
+        <div class="items-section">
+            <h3 class="section-header">ไอเทมที่ต้องออก (6 ชิ้น)</h3>
+            <div class="items-grid" id="itemsGrid">
+                <!-- Items will be inserted here -->
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// --- ข้อมูลตัวอย่างแบบมีรูปภาพ (จาก AoV Fandom Wiki) ---
+const heroesData = [
+    { name: "Yorn", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/6/60/Yorn_Icon.png" },
+    { name: "Violet", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/f/f6/Violet_Icon.png" },
+    { name: "Raz", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/b/b8/Raz_Icon.png" },
+    { name: "Florentino", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/a/a2/Florentino_Icon.png" },
+    { name: "Nakroth", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/9/93/Nakroth_Icon.png" },
+    { name: "Alice", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/6/60/Alice_Icon.png" },
+    { name: "Maloch", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/1/1e/Maloch_Icon.png" },
+    { name: "Liliana", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/f/f0/Liliana_Icon.png" }
+];
+
+const positionsData = [
+    { name: "Dark Slayer (บน)", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/f/f8/Icon_Class_Warrior.png" },
+    { name: "Mid Lane (กลาง)", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/0/07/Icon_Class_Mage.png" },
+    { name: "Abyssal Dragon (ล่าง)", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/6/60/Icon_Class_Archer.png" },
+    { name: "Jungle (ฟาร์มป่า)", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/b/b3/Icon_Class_Assassin.png" },
+    { name: "Support (โรม)", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/e/e0/Icon_Class_Support.png" }
+];
+
+const runesRed = ["Awake", "Onslaught", "Rage", "Violate", "Indomitable", "Atrocity"];
+const runesPurple = ["Assassinate", "Guerrilla", "Benevolence", "Bloodlust", "Devour", "Spirit"];
+const runesGreen = ["Dragon's Claw", "Skewer", "Flurry", "Valiance", "Purity", "Focus"];
+
+const enchantmentsData = [
+    { name: "Holy Thunder (Veda)", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/e/eb/Enchantment_Holy_Thunder.png" },
+    { name: "Sacred Protection (Veda)", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/c/c1/Enchantment_Sacred_Protection.png" },
+    { name: "Desperate Duel (Lokheim)", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/d/df/Enchantment_Desperate_Duel.png" },
+    { name: "Curse of Death (Lokheim)", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/5/52/Enchantment_Curse_of_Death.png" },
+    { name: "Nature's Gift (Afata)", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/0/07/Enchantment_Nature%27s_Gift.png" },
+    { name: "Visceral Boost (League)", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/2/23/Enchantment_Visceral_Boost.png" }
+];
+
+const itemsPoolData = [
+    { name: "War Boots", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/0/0e/War_Boots_Icon.png" },
+    { name: "Gilded Greaves", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/f/f6/Gilded_Greaves_Icon.png" },
+    { name: "Claves Sancti", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/d/d4/Claves_Sancti_Icon.png" },
+    { name: "Fenrir's Tooth", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/0/07/Fenrir%27s_Tooth_Icon.png" },
+    { name: "Muramasa", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/f/f9/Muramasa_Icon.png" },
+    { name: "Boomstick", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/7/7e/Boomstick_Icon.png" },
+    { name: "Hecate's Diadem", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/6/60/Hecate%27s_Diadem_Icon.png" },
+    { name: "The Aegis", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/e/ea/The_Aegis_Icon.png" },
+    { name: "Gaia's Standard", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/e/ef/Gaia%27s_Standard_Icon.png" },
+    { name: "Blade of Eternity", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/b/b3/Blade_of_Eternity_Icon.png" }
+];
+
+function getRandomElement(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function getRandomItems(arr, count) {
+    let shuffled = [...arr].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+}
+
+function randomAll() {
+    const hero = getRandomElement(heroesData);
+    document.getElementById("heroName").innerText = hero.name;
+    document.getElementById("heroImg").src = hero.imgUrl;
+
+    const pos = getRandomElement(positionsData);
+    document.getElementById("posName").innerText = pos.name;
+    document.getElementById("posImg").src = pos.imgUrl;
+
+    document.getElementById("runeRedName").innerText = getRandomElement(runesRed);
+    document.getElementById("runePurpleName").innerText = getRandomElement(runesPurple);
+    document.getElementById("runeGreenName").innerText = getRandomElement(runesGreen);
+
+    const ench = getRandomElement(enchantmentsData);
+    document.getElementById("enchName").innerText = ench.name;
+    document.getElementById("enchImg").src = ench.imgUrl;
+
+    const selectedItems = getRandomItems(itemsPoolData, 6);
+    const gridContainer = document.getElementById("itemsGrid");
+    gridContainer.innerHTML = "";
+
+    selectedItems.forEach(item => {
+        const itemCard = `
+            <div class="item-card">
+                <img src="${item.imgUrl}" alt="${item.name}" class="item-img" title="${item.name}">
+                <p class="item-name">${item.name}</p>
+            </div>
+        `;
+        gridContainer.innerHTML += itemCard;
+    });
+
+    document.getElementById("resultBox").style.display = "block";
+    document.getElementById("resultBox").scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
