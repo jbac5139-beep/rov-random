@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RoV Random Challenge - Dragon vs Slayer Edition</title>
+    
+    <!-- 👁️ โหมดพรางตัว: สั่งให้เบราว์เซอร์ซ่อนตัวตน ทำให้เว็บ Wiki ยอมปล่อยรูปให้เราตรงๆ 100% -->
+    <meta name="referrer" content="no-referrer">
+    
+    <title>RoV Random Challenge - Perfect Edition</title>
     <style>
         :root {
             --rov-space: #070913;
@@ -16,12 +20,13 @@
             --success: #10b981;
         }
 
-        /* 🌌 ส่วนพื้นหลัง GIF มังกรที่คุณส่งมา */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #070913;
+            background-image: linear-gradient(135deg, #070913 0%, #0f1326 50%, #070913 100%);
             
-            /* เปลี่ยนลิงก์พื้นหลังเป็นรูปมังกรชนดาร์กสเลเยอร์เรียบร้อยครับ */
-            background-image: url('bg.gif');
+            /* ดึงภาพพื้นหลังมังกร */
+            background-image: url('https://cdn.oneesports.gg/wp-content/uploads/sites/3/2021/07/RoV--1024x580.gif');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -38,12 +43,11 @@
             position: relative;
         }
 
-        /* 🎬 แผ่นฟิล์มโปร่งแสงทับพื้นหลัง ช่วยให้สบายตาขึ้นและอ่านตัวหนังสือสุ่มง่ายขึ้น */
         body::before {
             content: '';
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(7, 9, 19, 0.65); /* 0.65 คือความเข้ม ถ้าอยากให้เห็นมังกรชัดๆ ทะลุขึ้นมาอีก ให้ลดเหลือ 0.4 หรือ 0.5 ได้ครับ */
+            background: rgba(7, 9, 19, 0.65); 
             z-index: -1; 
         }
 
@@ -294,14 +298,14 @@
         
         <div class="top-meta">
             <div class="hero-card" id="heroCard">
-                <img id="heroImg" class="hero-img" src="" alt="Hero">
+                <img id="heroImg" class="hero-img" src="" alt="Hero" referrerpolicy="no-referrer">
                 <div>
                     <p class="card-title">ฮีโร่ท้าตาย</p>
                     <p id="heroName" class="card-value">?</p>
                 </div>
             </div>
             <div class="pos-card" id="posCard">
-                <img id="posImg" class="pos-img" src="" alt="Position">
+                <img id="posImg" class="pos-img" src="" alt="Position" referrerpolicy="no-referrer">
                 <div>
                     <p class="card-title">ตำแหน่ง / เลน</p>
                     <p id="posName" class="card-value">?</p>
@@ -329,7 +333,7 @@
 
             <p class="card-title" style="margin-bottom: 10px;">พลังแฝงหลัก</p>
             <div class="ench-container">
-                <img id="enchImg" class="ench-img" src="" alt="Enchantment">
+                <img id="enchImg" class="ench-img" src="" alt="Enchantment" referrerpolicy="no-referrer">
                 <span id="enchName" class="card-value" style="font-size: 1.1rem;">?</span>
             </div>
         </div>
@@ -342,7 +346,8 @@
     </div>
 </div>
 
-<script src="data.js"></script>
+<!-- 🔄 ใส่ ?v=99 เพื่อบังคับให้ระบบโหลดไฟล์ข้อมูลอันใหม่ล่าสุดทันที ไม่แอบอมแคชเก่า -->
+<script src="data.js?v=99"></script>
 
 <script>
 function getRandomElement(arr) {
@@ -444,7 +449,7 @@ function renderItems(itemsList) {
     itemsList.forEach(item => {
         gridContainer.innerHTML += `
             <div class="item-card">
-                <img src="${item.imgUrl}" alt="${item.name}" class="item-img">
+                <img src="${item.imgUrl}" alt="${item.name}" class="item-img" referrerpolicy="no-referrer">
                 <p class="item-name">${item.name}</p>
             </div>
         `;
