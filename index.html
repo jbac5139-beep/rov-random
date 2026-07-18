@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RoV Random Challenge V2 - สุ่มท้าตายแบบมีรูป</title>
+    <title>RoV Random Challenge V3 - ระบบสุ่มล็อกเรียงลำดับ</title>
     <style>
         :root {
             --bg-color: #030712;
@@ -11,6 +11,7 @@
             --primary: #38bdf8;
             --accent: #f59e0b;
             --danger: #ef4444;
+            --success: #10b981;
             --text: #f3f4f6;
             --rune-red: #ef4444;
             --rune-purple: #a855f7;
@@ -61,9 +62,15 @@
             letter-spacing: 1px;
         }
 
-        .btn-random:hover {
+        .btn-random:hover:not(:disabled) {
             transform: scale(1.05) translateY(-3px);
             box-shadow: 0 8px 25px rgba(239, 68, 68, 0.7);
+        }
+
+        .btn-random:disabled {
+            background: #4b5563;
+            box-shadow: none;
+            cursor: not-allowed;
         }
 
         .result-box {
@@ -75,6 +82,19 @@
             padding: 30px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
             text-align: left;
+        }
+
+        /* เอฟเฟกต์กระตุกเด้งตอนกล่องล็อกผลลัพธ์ */
+        .lock-bounce {
+            animation: lockBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+            border-color: var(--success) !important;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+
+        @keyframes lockBounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.06); filter: brightness(1.3); }
+            100% { transform: scale(1); }
         }
 
         /* Hero and Position Layout */
@@ -94,7 +114,8 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            border: 1px solid #374151;
+            border: 2px solid #374151;
+            transition: all 0.2s ease;
         }
 
         .hero-img {
@@ -130,7 +151,8 @@
             background: var(--card-bg);
             border-radius: 12px;
             padding: 20px;
-            border: 1px solid #374151;
+            border: 2px solid #374151;
+            transition: all 0.2s ease;
         }
 
         .section-header {
@@ -180,7 +202,8 @@
             background: var(--card-bg);
             border-radius: 12px;
             padding: 20px;
-            border: 1px solid #374151;
+            border: 2px solid #374151;
+            transition: all 0.2s ease;
         }
 
         .items-grid {
@@ -222,22 +245,22 @@
 
 <div class="main-container">
     <h1>⚔️ RoV Random Challenge ⚔️</h1>
-    <p class="subtitle">ระบบสุ่มเซ็ตท้าตายแบบเห็นภาพ จัดทีมขำๆ กับเพื่อน!</p>
+    <p class="subtitle">ระบบสุ่มล็อกทีละช่อง ลุ้นสนุกเร้าใจกว่าเดิม!</p>
     
-    <button class="btn-random" onclick="randomAll()">✨ สุ่มเลย !</button>
+    <button class="btn-random" id="btnRandom" onclick="startCascadeRandom()">⚡ เริ่มสุ่มความท้าทาย !</button>
 
     <div class="result-box" id="resultBox">
         
         <!-- ส่วนบน: ฮีโร่ และ ตำแหน่ง -->
         <div class="top-meta">
-            <div class="hero-card">
+            <div class="hero-card" id="heroCard">
                 <img id="heroImg" class="hero-img" src="" alt="Hero">
                 <div>
                     <p class="card-title">ฮีโร่ท้าตาย</p>
                     <p id="heroName" class="card-value">?</p>
                 </div>
             </div>
-            <div class="pos-card">
+            <div class="pos-card" id="posCard">
                 <img id="posImg" class="pos-img" src="" alt="Position">
                 <div>
                     <p class="card-title">ตำแหน่ง/เลน</p>
@@ -247,7 +270,7 @@
         </div>
 
         <!-- ส่วนกลาง: รูน และ พลังแฝง -->
-        <div class="middle-meta">
+        <div class="middle-meta" id="middleMeta">
             <h3 class="section-header">การตั้งค่าพลัง</h3>
             
             <p class="card-title" style="margin-bottom: 10px;">เซ็ตรูน Level 3 (แนะนำ)</p>
@@ -274,7 +297,7 @@
         </div>
 
         <!-- ส่วนล่าง: ไอเทม -->
-        <div class="items-section">
+        <div class="items-section" id="itemsSection">
             <h3 class="section-header">ไอเทมที่ต้องออก (6 ชิ้น)</h3>
             <div class="items-grid" id="itemsGrid">
                 <!-- Items will be inserted here -->
@@ -285,7 +308,7 @@
 </div>
 
 <script>
-// --- ข้อมูลตัวอย่างแบบมีรูปภาพ (จาก AoV Fandom Wiki) ---
+// --- ฐานข้อมูลไอคอนเกม ---
 const heroesData = [
     { name: "Yorn", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/6/60/Yorn_Icon.png" },
     { name: "Violet", imgUrl: "https://static.wikia.nocookie.net/arena-of-valor/images/f/f6/Violet_Icon.png" },
@@ -340,39 +363,111 @@ function getRandomItems(arr, count) {
     return shuffled.slice(0, count);
 }
 
-function randomAll() {
-    const hero = getRandomElement(heroesData);
-    document.getElementById("heroName").innerText = hero.name;
-    document.getElementById("heroImg").src = hero.imgUrl;
+// --- ฟังก์ชันสุ่มระบบล็อกเรียงลำดับความเร็วสูง ---
+function startCascadeRandom() {
+    const btn = document.getElementById("btnRandom");
+    const resultBox = document.getElementById("resultBox");
+    
+    // รีเซ็ตการตกแต่งกล่องสุ่มให้กลับมาสถานะปกติก่อน
+    const cards = ["heroCard", "posCard", "middleMeta", "itemsSection"];
+    cards.forEach(id => document.getElementById(id).classList.remove("lock-bounce"));
 
-    const pos = getRandomElement(positionsData);
-    document.getElementById("posName").innerText = pos.name;
-    document.getElementById("posImg").src = pos.imgUrl;
+    resultBox.style.display = "block";
+    resultBox.scrollIntoView({ behavior: 'smooth' });
 
-    document.getElementById("runeRedName").innerText = getRandomElement(runesRed);
-    document.getElementById("runePurpleName").innerText = getRandomElement(runesPurple);
-    document.getElementById("runeGreenName").innerText = getRandomElement(runesGreen);
+    btn.disabled = true;
+    btn.innerText = "⚡ กำลังสุ่มอย่างไว...";
 
-    const ench = getRandomElement(enchantmentsData);
-    document.getElementById("enchName").innerText = ench.name;
-    document.getElementById("enchImg").src = ench.imgUrl;
+    // 1. ล็อกผลลัพธ์สุดท้ายไว้ล่วงหน้าเลย เพื่อความแม่นยำ
+    const finalHero = getRandomElement(heroesData);
+    const finalPos = getRandomElement(positionsData);
+    const finalRuneRed = getRandomElement(runesRed);
+    const finalRunePurple = getRandomElement(runesPurple);
+    const finalRuneGreen = getRandomElement(runesGreen);
+    const finalEnch = getRandomElement(enchantmentsData);
+    const finalItems = getRandomItems(itemsPoolData, 6);
 
-    const selectedItems = getRandomItems(itemsPoolData, 6);
+    let currentTick = 0;
+    const tickSpeed = 50; // ความเร็วสับรูปภาพ (50 มิลลิวินาทีต่อภาพ ยิ่งน้อยยิ่งไว)
+
+    // กำหนดเวลาที่แต่ละส่วนจะหยุดทำงาน (หน่วยเป็นจำนวนรอบการสับรูป)
+    const stopHeroTick = 16;       // หยุดช่องตัวละครที่ 0.8 วินาที
+    const stopPosTick = 28;        // หยุดช่องตำแหน่งที่ 1.4 วินาที
+    const stopMiddleTick = 40;     // หยุดรูน+พลังแฝงที่ 2.0 วินาที
+    const stopItemsTick = 52;      // หยุดช่องไอเทมที่ 2.6 วินาที
+
+    const intervalId = setInterval(() => {
+        currentTick++;
+
+        // --- แอนิเมชั่นรีลที่ 1: ตัวละคร ---
+        if (currentTick < stopHeroTick) {
+            const rand = getRandomElement(heroesData);
+            document.getElementById("heroName").innerText = rand.name;
+            document.getElementById("heroImg").src = rand.imgUrl;
+        } else if (currentTick === stopHeroTick) {
+            document.getElementById("heroName").innerText = finalHero.name;
+            document.getElementById("heroImg").src = finalHero.imgUrl;
+            document.getElementById("heroCard").classList.add("lock-bounce"); // แสดงเอฟเฟกต์ล็อกสำเร็จ
+        }
+
+        // --- แอนิเมชั่นรีลที่ 2: เลน/ตำแหน่ง ---
+        if (currentTick < stopPosTick) {
+            const rand = getRandomElement(positionsData);
+            document.getElementById("posName").innerText = rand.name;
+            document.getElementById("posImg").src = rand.imgUrl;
+        } else if (currentTick === stopPosTick) {
+            document.getElementById("posName").innerText = finalPos.name;
+            document.getElementById("posImg").src = finalPos.imgUrl;
+            document.getElementById("posCard").classList.add("lock-bounce");
+        }
+
+        // --- แอนิเมชั่นรีลที่ 3: พลังแฝงและรูน ---
+        if (currentTick < stopMiddleTick) {
+            document.getElementById("runeRedName").innerText = getRandomElement(runesRed);
+            document.getElementById("runePurpleName").innerText = getRandomElement(runesPurple);
+            document.getElementById("runeGreenName").innerText = getRandomElement(runesGreen);
+            
+            const rand = getRandomElement(enchantmentsData);
+            document.getElementById("enchName").innerText = rand.name;
+            document.getElementById("enchImg").src = rand.imgUrl;
+        } else if (currentTick === stopMiddleTick) {
+            document.getElementById("runeRedName").innerText = finalRuneRed;
+            document.getElementById("runePurpleName").innerText = finalRunePurple;
+            document.getElementById("runeGreenName").innerText = finalRuneGreen;
+            document.getElementById("enchName").innerText = finalEnch.name;
+            document.getElementById("enchImg").src = finalEnch.imgUrl;
+            document.getElementById("middleMeta").classList.add("lock-bounce");
+        }
+
+        // --- แอนิเมชั่นรีลที่ 4: ไอเทมทั้ง 6 ชิ้น ---
+        if (currentTick < stopItemsTick) {
+            const randItems = getRandomItems(itemsPoolData, 6);
+            renderItems(randItems);
+        } else if (currentTick === stopItemsTick) {
+            renderItems(finalItems);
+            document.getElementById("itemsSection").classList.add("lock-bounce");
+            
+            // สิ้นสุดการสุ่มทั้งหมด คืนสถานะปุ่ม
+            clearInterval(intervalId);
+            btn.disabled = false;
+            btn.innerText = "⚡ สุ่มใหม่อีกที !";
+        }
+
+    }, tickSpeed);
+}
+
+// ฟังก์ชันสำหรับวาดการ์ดไอเทมลงบนหน้าจอ
+function renderItems(itemsList) {
     const gridContainer = document.getElementById("itemsGrid");
     gridContainer.innerHTML = "";
-
-    selectedItems.forEach(item => {
-        const itemCard = `
+    itemsList.forEach(item => {
+        gridContainer.innerHTML += `
             <div class="item-card">
-                <img src="${item.imgUrl}" alt="${item.name}" class="item-img" title="${item.name}">
+                <img src="${item.imgUrl}" alt="${item.name}" class="item-img">
                 <p class="item-name">${item.name}</p>
             </div>
         `;
-        gridContainer.innerHTML += itemCard;
     });
-
-    document.getElementById("resultBox").style.display = "block";
-    document.getElementById("resultBox").scrollIntoView({ behavior: 'smooth' });
 }
 </script>
 
