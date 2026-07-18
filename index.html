@@ -3,11 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- 👁️ โหมดพรางตัว: สั่งให้เบราว์เซอร์ซ่อนตัวตน ทำให้เว็บ Wiki ยอมปล่อยรูปให้เราตรงๆ 100% -->
-    <meta name="referrer" content="no-referrer">
-    
-    <title>RoV Random Challenge - Perfect Edition</title>
+    <title>RoV Random Challenge - Fixed Image Edition</title>
     <style>
         :root {
             --rov-space: #070913;
@@ -25,7 +21,7 @@
             background-color: #070913;
             background-image: linear-gradient(135deg, #070913 0%, #0f1326 50%, #070913 100%);
             
-            /* ดึงภาพพื้นหลังมังกร */
+            /* ดึงภาพพื้นหลังมังกรชนดาร์กสเลเยอร์ */
             background-image: url('https://cdn.oneesports.gg/wp-content/uploads/sites/3/2021/07/RoV--1024x580.gif');
             background-size: cover;
             background-position: center;
@@ -298,14 +294,14 @@
         
         <div class="top-meta">
             <div class="hero-card" id="heroCard">
-                <img id="heroImg" class="hero-img" src="" alt="Hero" referrerpolicy="no-referrer">
+                <img id="heroImg" class="hero-img" src="" alt="Hero">
                 <div>
                     <p class="card-title">ฮีโร่ท้าตาย</p>
                     <p id="heroName" class="card-value">?</p>
                 </div>
             </div>
             <div class="pos-card" id="posCard">
-                <img id="posImg" class="pos-img" src="" alt="Position" referrerpolicy="no-referrer">
+                <img id="posImg" class="pos-img" src="" alt="Position">
                 <div>
                     <p class="card-title">ตำแหน่ง / เลน</p>
                     <p id="posName" class="card-value">?</p>
@@ -333,7 +329,7 @@
 
             <p class="card-title" style="margin-bottom: 10px;">พลังแฝงหลัก</p>
             <div class="ench-container">
-                <img id="enchImg" class="ench-img" src="" alt="Enchantment" referrerpolicy="no-referrer">
+                <img id="enchImg" class="ench-img" src="" alt="Enchantment">
                 <span id="enchName" class="card-value" style="font-size: 1.1rem;">?</span>
             </div>
         </div>
@@ -346,10 +342,18 @@
     </div>
 </div>
 
-<!-- 🔄 ใส่ ?v=99 เพื่อบังคับให้ระบบโหลดไฟล์ข้อมูลอันใหม่ล่าสุดทันที ไม่แอบอมแคชเก่า -->
-<script src="data.js?v=99"></script>
+<script src="data.js?v=101"></script>
 
 <script>
+// 🛠️ ฟังก์ชันทลายบล็อกรูปภาพ: ดักทุกลิงก์ของ Wiki แล้วส่งผ่าน Proxy ตัวกลางที่เสถียรที่สุดสากล
+function pImg(url) {
+    if (!url) return "";
+    if (url.includes("wikia.nocookie.net")) {
+        return "https://wsrv.nl/?url=" + encodeURIComponent(url);
+    }
+    return url;
+}
+
 function getRandomElement(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -394,20 +398,20 @@ function startCascadeRandom() {
         if (currentTick < stopHeroTick) {
             const rand = getRandomElement(heroesData);
             document.getElementById("heroName").innerText = rand.name;
-            document.getElementById("heroImg").src = rand.imgUrl;
+            document.getElementById("heroImg").src = pImg(rand.imgUrl);
         } else if (currentTick === stopHeroTick) {
             document.getElementById("heroName").innerText = finalHero.name;
-            document.getElementById("heroImg").src = finalHero.imgUrl;
+            document.getElementById("heroImg").src = pImg(finalHero.imgUrl);
             document.getElementById("heroCard").classList.add("lock-bounce");
         }
 
         if (currentTick < stopPosTick) {
             const rand = getRandomElement(positionsData);
             document.getElementById("posName").innerText = rand.name;
-            document.getElementById("posImg").src = rand.imgUrl;
+            document.getElementById("posImg").src = pImg(rand.imgUrl);
         } else if (currentTick === stopPosTick) {
             document.getElementById("posName").innerText = finalPos.name;
-            document.getElementById("posImg").src = finalPos.imgUrl;
+            document.getElementById("posImg").src = pImg(finalPos.imgUrl);
             document.getElementById("posCard").classList.add("lock-bounce");
         }
 
@@ -418,13 +422,13 @@ function startCascadeRandom() {
             
             const rand = getRandomElement(enchantmentsData);
             document.getElementById("enchName").innerText = rand.name;
-            document.getElementById("enchImg").src = rand.imgUrl;
+            document.getElementById("enchImg").src = pImg(rand.imgUrl);
         } else if (currentTick === stopMiddleTick) {
             document.getElementById("runeRedName").innerText = finalRuneRed;
             document.getElementById("runePurpleName").innerText = finalRunePurple;
             document.getElementById("runeGreenName").innerText = finalRuneGreen;
             document.getElementById("enchName").innerText = finalEnch.name;
-            document.getElementById("enchImg").src = finalEnch.imgUrl;
+            document.getElementById("enchImg").src = pImg(finalEnch.imgUrl);
             document.getElementById("middleMeta").classList.add("lock-bounce");
         }
 
@@ -449,7 +453,7 @@ function renderItems(itemsList) {
     itemsList.forEach(item => {
         gridContainer.innerHTML += `
             <div class="item-card">
-                <img src="${item.imgUrl}" alt="${item.name}" class="item-img" referrerpolicy="no-referrer">
+                <img src="${pImg(item.imgUrl)}" alt="${item.name}" class="item-img">
                 <p class="item-name">${item.name}</p>
             </div>
         `;
