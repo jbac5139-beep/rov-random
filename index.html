@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RoV Random Challenge - Fixed Image Edition</title>
+    <title>RoV Random Challenge - WordPress CDN Edition</title>
     <style>
         :root {
             --rov-space: #070913;
@@ -342,16 +342,15 @@
     </div>
 </div>
 
-<script src="data.js?v=101"></script>
+<script src="data.js?v=102"></script>
 
 <script>
-// 🛠️ ฟังก์ชันทลายบล็อกรูปภาพ: ดักทุกลิงก์ของ Wiki แล้วส่งผ่าน Proxy ตัวกลางที่เสถียรที่สุดสากล
+// 🚀 ฟังก์ชันเปลี่ยนท่อส่งรูปภาพไปใช้ WordPress Jetpack CDN เพื่อทะลวงบล็อก 100%
 function pImg(url) {
     if (!url) return "";
-    if (url.includes("wikia.nocookie.net")) {
-        return "https://wsrv.nl/?url=" + encodeURIComponent(url);
-    }
-    return url;
+    // ตัดโปรโตคอล http/https ออก แล้วครอบด้วยลิงก์กระจายภาพของ WordPress มีความเสถียรสูงสุด
+    const cleanUrl = url.replace(/^https?:\/\//, '');
+    return "https://i0.wp.com/" + cleanUrl;
 }
 
 function getRandomElement(arr) {
